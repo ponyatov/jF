@@ -27,14 +27,18 @@ cli		= body.append('form').attr('id', 'cli')
 pad		= cli.append('textarea').attr('id','pad')
 							.attr('rows',5).attr('autofocus',true)
 							.attr('placeholder','# put commands here')
+							.text(`\\ run selected with Ctrl-Enter
+-01 +02.30 +4e-5 0xDeadBeef 0b1101 \'string\'`	)
 go		= cli.append('button').attr('id','go').text('GO')
 grammar	= cli.append('textarea').attr('id','peg')
-							.attr('rows',7)
+							.attr('rows',9)
 							.text(`// define your own grammar
 
-									FORTH  = _? ( s:symbol _? { return s }) *
-									symbol = s:[a-zA-Z0-9_]+ { return s.join('') }
-									_      = [ \t\r\n]+`)
+FORTH   = _? (( comment / s:symbol _? { console.log("<"+s+">") } ) _? ) *
+comment = [\\\\\\#][^\\n]*
+symbol  = s:[^ \\t\\n\\r]+ { return s.join('') }
+_       = [ \\t\\r\\n]+
+`)
 
 class Frame {
 	
