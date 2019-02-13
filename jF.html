@@ -1,0 +1,33 @@
+<style>
+
+* {
+	background:black; color:lightgreen;
+	font-family: monospace; font-size: 4mm;
+}
+
+#pad,#go	{ width:100%; }
+#pad		{ color:cyan; }
+
+</style>
+
+Hello
+
+<script src="d3.v3.min.js"></script>
+<script src="peg-0.10.0.min.js"></script>
+<script>
+
+body = d3.select('body')
+cli  = body.append('form').attr('id', 'cli')
+pad  = cli.append('textarea').attr('id','pad')
+								.attr('rows',5).attr('autofocus',true)
+go   = cli.append('button').attr('id','go').text('GO')
+
+function Frame(T, V)  { return { type : T, value : V, attr : {}, nest : [] }}
+	
+function Container(V) { Frame.call(this,'container',V) }
+	
+function Stack(V)	  { Container.call(this,V) }
+	
+function Dict(V)	  { Container.call(this,V) }
+	
+</script>
