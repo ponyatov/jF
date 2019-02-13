@@ -1,5 +1,5 @@
 
-local_libs: d3.v3.min.js peg-0.10.0.min.js
+jslibs: d3.v3.min.js peg-0.10.0.min.js
 
 WGET = wget -c 
 
