@@ -34,9 +34,9 @@ grammar	= cli.append('textarea').attr('id','peg')
 							.attr('rows',9)
 							.text(`// define your own grammar
 
-FORTH   = _? (( comment / s:symbol _? { console.log("<"+s+">") } ) _? ) *
+FORTH   = _? (( comment / s:symbol _? { S.push(s) } ) _? ) *
 comment = [\\\\\\#][^\\n]*
-symbol  = s:[^ \\t\\n\\r]+ { return s.join('') }
+symbol  = s:[^ \\t\\n\\r]+ { return new Symbol(s.join('')) }
 _       = [ \\t\\r\\n]+
 `)
 
@@ -47,10 +47,10 @@ class Frame {
 	
 	dump(depth=0,prefix='') {
 		var S = this.tab(depth) + this.head(prefix)
-		Object.keys(this.attr).forEach(
-			key =>
-			S += this.attr[key].dump(depth+1,key + " = ")
-		) 
+		Object.keys(this.attr).forEach( i =>
+			S += this.attr[i].dump(depth+1, i + " = ") )
+		this.nest.forEach( j =>
+			S += j.dump(depth+1) )
 		return S }
 	
 	head(prefix='') {
@@ -61,10 +61,16 @@ class Frame {
 	
 	stor(K,F) { this.attr[K] = F }
 	slot(F)   { this.stor(F.value,F) }
+
+	push(F)   { this.nest.push(F) }
 	
 }
 
-class Container extends Frame { constructor(T,V) { super(T,V); } }
+class Primitive extends Frame {}
+
+class Symbol extends Primitive { constructor(V) { super('symbol',V); } }
+
+class Container extends Frame {}
 
 class Stack extends Container { constructor(V) { super('stack',V); } }
 
@@ -107,10 +113,11 @@ function gopad() {
 	var grammar   = document.getElementById("peg").value
 	try {
 	var parser	  = peg.generate(grammar);
-		console.log(parser.parse(selection))
+		parser.parse(selection)
 	} catch (err) {
 		alert(err)	
 	}
+	sync()
 }
 	
 </script>
