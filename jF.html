@@ -1,3 +1,5 @@
+<title>jF: Frames/js</title>
+
 <style>
 
 * {
@@ -8,31 +10,80 @@
 #pad,#go,#peg	{ width:100%; }
 #pad			{ color:cyan; }
 #peg			{ color:grey; }
+#words			{ color:steelblue; }
 
 </style>
 
-Hello
+<pre id=words>words</pre>
+<pre id=stack>stack</pre>
 
 <script src="d3.v3.min.js"></script>
 <script src="peg-0.10.0.min.js"></script>
 <script>
 
 body = d3.select('body')
+
 cli  = body.append('form').attr('id', 'cli')
 pad  = cli.append('textarea').attr('id','pad')
-								.attr('rows',5).attr('autofocus',true)
-								.attr('placeholder','# put commands here')
+							.attr('rows',5).attr('autofocus',true)
+							.attr('placeholder','# put commands here')
 go   = cli.append('button').attr('id','go').text('GO')
 peg  = cli.append('textarea').attr('id','peg')
-								.attr('rows',7)
-								.attr('placeholder','// define your own grammar')
+							.attr('rows',7)
+							.attr('placeholder','// define your own grammar')
 
-function Frame(T, V)  { return { type : T, value : V, attr : {}, nest : [] }}
+class Frame {
 	
-function Container(V) { Frame.call(this,'container',V) }
+	constructor(T='frame',V) {
+		this.type  = T ; this.value = V ; this.attr  = {} ; this.nest  = [] }
 	
-function Stack(V)	  { Container.call(this,V) }
+	dump(depth=0,prefix='') {
+		var S = this.tab(depth) + this.head(prefix)
+		Object.keys(this.attr).forEach(
+			key =>
+			S += this.attr[key].dump(depth+1,key + " = ")
+		) 
+		return S }
 	
-function Dict(V)	  { Container.call(this,V) }
+	head(prefix='') {
+		return prefix + '<' + this.type + ':' + this.value + '>' }
+	
+	tab(N) {
+		return '\n'+'\t'.repeat(N) }
+	
+	stor(K,F) { this.attr[K] = F }
+	slot(F)   { this.stor(F.value,F) }
+	
+}
+
+class Container extends Frame { constructor(T,V) { super(T,V); } }
+
+class Stack extends Container { constructor(V) { super('stack',V); } }
+
+S = new Stack('DATA')
+
+class Dict extends Container {
+	constructor(V) { super('dict',V) }
+	slot(F)		   { super.slot(new VM(F)) }
+}
+	
+W = new Dict('FORTH')
+
+class Active extends Frame {}
+
+class VM extends Active {
+	constructor(F) { super('vm',F.name) ; this.fn = F }
+}
+
+W.slot( function NOP(){} )
+
+words = body.select('#words')
+stack = body.select('#stack')
+
+function sync() {
+	words.text(W.dump())
+	stack.text(S.dump())
+}
+sync()
 	
 </script>
