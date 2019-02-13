@@ -5,8 +5,9 @@
 	font-family: monospace; font-size: 4mm;
 }
 
-#pad,#go	{ width:100%; }
-#pad		{ color:cyan; }
+#pad,#go,#peg	{ width:100%; }
+#pad			{ color:cyan; }
+#peg			{ color:grey; }
 
 </style>
 
@@ -20,7 +21,11 @@ body = d3.select('body')
 cli  = body.append('form').attr('id', 'cli')
 pad  = cli.append('textarea').attr('id','pad')
 								.attr('rows',5).attr('autofocus',true)
+								.attr('placeholder','# put commands here')
 go   = cli.append('button').attr('id','go').text('GO')
+peg  = cli.append('textarea').attr('id','peg')
+								.attr('rows',7)
+								.attr('placeholder','// define your own grammar')
 
 function Frame(T, V)  { return { type : T, value : V, attr : {}, nest : [] }}
 	
