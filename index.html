@@ -23,14 +23,18 @@
 
 body = d3.select('body')
 
-cli  = body.append('form').attr('id', 'cli')
-pad  = cli.append('textarea').attr('id','pad')
+cli		= body.append('form').attr('id', 'cli')
+pad		= cli.append('textarea').attr('id','pad')
 							.attr('rows',5).attr('autofocus',true)
 							.attr('placeholder','# put commands here')
-go   = cli.append('button').attr('id','go').text('GO')
-peg  = cli.append('textarea').attr('id','peg')
+go		= cli.append('button').attr('id','go').text('GO')
+grammar	= cli.append('textarea').attr('id','peg')
 							.attr('rows',7)
-							.attr('placeholder','// define your own grammar')
+							.text(`// define your own grammar
+
+									FORTH  = _? ( s:symbol _? { return s }) *
+									symbol = s:[a-zA-Z0-9_]+ { return s.join('') }
+									_      = [ \t\r\n]+`)
 
 class Frame {
 	
@@ -85,5 +89,24 @@ function sync() {
 	stack.text(S.dump())
 }
 sync()
+
+body.attr('onkeydown',"keydown(event)")
+
+function keydown(event) {
+	if (event.ctrlKey && event.key == 'Enter') gopad(); }
+
+function gopad() {
+	var pad       = document.getElementById("pad")
+	var start     = pad.selectionStart
+	var finish    = pad.selectionEnd
+	var selection = pad.value.substring(start,finish)
+	var grammar   = document.getElementById("peg").value
+	try {
+	var parser	  = peg.generate(grammar);
+		console.log(parser.parse(selection))
+	} catch (err) {
+		alert(err)	
+	}
+}
 	
 </script>
