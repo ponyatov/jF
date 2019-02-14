@@ -10,6 +10,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": { "name":"Dmitry Ponyatov", "email":"dponyatov@gmail.com" },
+  "author": {
+    "name": "Dmitry Ponyatov",
+    "email": "dponyatov@gmail.com"
+  },
   "license": "UNLICENSED"
 }
