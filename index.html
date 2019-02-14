@@ -156,7 +156,9 @@ W.slot( function NOP(){} )
 class IO extends Frame { constructor(T,V) { super(T,V) } }
 
 class Dir  extends IO { constructor(V) { super('dir' ,V) } }
-class File extends IO { constructor(V) { super('file',V) } }
+class File extends IO { constructor(T='file',V) { super(T,V) } }
+
+class HTML extends File { constructor(V) { super('html',V) } }
 
 </script>
 
@@ -179,9 +181,10 @@ class Meta extends Frame { constructor(V) { super('meta',V) } }
 	
 	let met   = new Meta('Meta')      ; frame.slot ( met   )
 	
-	let func = new Meta('function') ; meta.stor('function',func)
+	let func  = new Meta('function') ; meta.stor('function',func)
 	
-	meta.stor('dir',new Dir('jF') )
+	let path  = new Dir('jF') ; meta.stor('dir',path )
+	let html  = new HTML('index.html') ; path.slot(html)
 
 }())
 
