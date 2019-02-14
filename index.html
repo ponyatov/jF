@@ -37,9 +37,11 @@ grammar	= cli.append('textarea').attr('id','peg')
 							.attr('rows',9)
 							.text(`// define your own grammar
 
-FORTH   = _? (( comment / dot / s:symbol _? { S.push(s) } ) _? ) *
-dot     = "." { S.dropall() }
+FORTH   = _? (( comment / dot / f:frame _? { S.push(f) } ) _? ) *
 comment = [\\\\\\#][^\\n]*
+dot     = "." { S.dropall() }
+frame   = "\`" s:symbol { return s }            // quote
+        / s:symbol { return W.fetch(s.value) } // lookup
 symbol  = s:[^ \\t\\n\\r]+ { return new Symbol(s.join('')) }
 _       = [ \\t\\r\\n]+
 `)
@@ -51,6 +53,9 @@ class Frame {
 	
 	dump(depth=0,prefix='') {
 		var S = this.tab(depth) + this.head(prefix)
+		if (!depth) Frame.dumped = []
+		if  (Frame.dumped.includes(this)) return S + ' ...'
+		else Frame.dumped.push    (this)
 		Object.keys(this.attr).forEach( i =>
 			S += this.attr[i].dump(depth+1, i + " = ") )
 		this.nest.forEach( j =>
@@ -65,6 +70,7 @@ class Frame {
 	
 	stor(K,F)	{ this.attr[K] = F		}
 	slot(F)		{ this.stor(F.value,F)	}
+	fetch(K)	{ return this.attr[K]   }
 
 	push(F)		{ this.nest.push(F)		}
 	
@@ -84,7 +90,11 @@ S = new Stack('DATA')
 
 class Dict extends Container {
 	constructor(V) { super('dict',V) }
-	slot(F)		   { super.slot(new VM(F)) }
+	slot(F)		   {
+		console.log(F)
+		if (F instanceof Frame)		super.slot(F)
+		if (F instanceof Function)	super.slot(new VM(F))
+	}
 }
 	
 W = new Dict('FORTH')
@@ -136,5 +146,15 @@ function gopad() {
 	}
 	sync()
 }
-	
+
 </script>
+
+<script id=std_vocabulary>
+
+W.stor('W',W)
+W.stor('S',S)
+
+sync()
+
+</script>
+
