@@ -1,13 +1,15 @@
 {
-  "name": "jf",
+  "name": "jF",
   "version": "0.0.1",
   "description": "jF/FramES6",
   "main": "go_node.js",
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "babel": "^6.23.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Dmitry Ponyatov <dponyatov@gmail.com>",
+  "author": { "name":"Dmitry Ponyatov", "email":"dponyatov@gmail.com" },
   "license": "UNLICENSED"
 }
