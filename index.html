@@ -29,7 +29,9 @@ pad		= cli.append('textarea').attr('id','pad')
 							.attr('rows',5).attr('autofocus',true)
 							.attr('placeholder','# put commands here')
 							.text(`\\ run selected with Ctrl-Enter
-. -01 +02.30 +4e-5 0xDeadBeef 0b1101 \'string\'`	)
+. -01 +02.30 +4e-5 0xDeadBeef 0b1101 \'string\'
+  \`S S
+`)
 
 go		= cli.append('button').attr('id','go').text('GO')
 
@@ -41,7 +43,7 @@ FORTH   = _? (( comment / dot / f:frame _? { S.push(f) } ) _? ) *
 comment = [\\\\\\#][^\\n]*
 dot     = "." { S.dropall() }
 frame   = "\`" s:symbol { return s }            // quote
-        / s:symbol { return W.fetch(s.value) } // lookup
+        / s:symbol { return W.lookup(s) }		// lookup
 symbol  = s:[^ \\t\\n\\r]+ { return new Symbol(s.join('')) }
 _       = [ \\t\\r\\n]+
 `)
@@ -71,6 +73,8 @@ class Frame {
 	stor(K,F)	{ this.attr[K] = F		}
 	slot(F)		{ this.stor(F.value,F)	}
 	fetch(K)	{ return this.attr[K]   }
+	
+	lookup(S)	{ let R = this.fetch(S.value) ; return R ? R : S }
 
 	push(F)		{ this.nest.push(F)		}
 	
@@ -156,9 +160,9 @@ W.slot( function NOP(){} )
 class IO extends Frame { constructor(T,V) { super(T,V) } }
 
 class Dir  extends IO { constructor(V) { super('dir' ,V) } }
-class File extends IO { constructor(T='file',V) { super(T,V) } }
+class File extends IO { constructor(V) { super('file',V) } }
 
-class HTML extends File { constructor(V) { super('html',V) } }
+class HTML extends File { constructor(V) { super(V) ; this.type = 'hmtl' } }
 
 </script>
 
@@ -185,6 +189,7 @@ class Meta extends Frame { constructor(V) { super('meta',V) } }
 	
 	let path  = new Dir('jF') ; meta.stor('dir',path )
 	let html  = new HTML('index.html') ; path.slot(html)
+	let mk    = new File('Makefile') ; path.slot(mk)
 
 }())
 
