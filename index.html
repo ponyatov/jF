@@ -1,4 +1,4 @@
-<title>jF: Frames/js</title>
+<title>jF/FramES6</title>
 
 <style>
 
@@ -24,17 +24,21 @@
 body = d3.select('body')
 
 cli		= body.append('form').attr('id', 'cli')
+
 pad		= cli.append('textarea').attr('id','pad')
 							.attr('rows',5).attr('autofocus',true)
 							.attr('placeholder','# put commands here')
 							.text(`\\ run selected with Ctrl-Enter
--01 +02.30 +4e-5 0xDeadBeef 0b1101 \'string\'`	)
+. -01 +02.30 +4e-5 0xDeadBeef 0b1101 \'string\'`	)
+
 go		= cli.append('button').attr('id','go').text('GO')
+
 grammar	= cli.append('textarea').attr('id','peg')
 							.attr('rows',9)
 							.text(`// define your own grammar
 
-FORTH   = _? (( comment / s:symbol _? { S.push(s) } ) _? ) *
+FORTH   = _? (( comment / dot / s:symbol _? { S.push(s) } ) _? ) *
+dot     = "." { S.dropall() }
 comment = [\\\\\\#][^\\n]*
 symbol  = s:[^ \\t\\n\\r]+ { return new Symbol(s.join('')) }
 _       = [ \\t\\r\\n]+
@@ -59,10 +63,12 @@ class Frame {
 	tab(N) {
 		return '\n'+'\t'.repeat(N) }
 	
-	stor(K,F) { this.attr[K] = F }
-	slot(F)   { this.stor(F.value,F) }
+	stor(K,F)	{ this.attr[K] = F		}
+	slot(F)		{ this.stor(F.value,F)	}
 
-	push(F)   { this.nest.push(F) }
+	push(F)		{ this.nest.push(F)		}
+	
+	dropall(F)	{ this.nest = []		}
 	
 }
 
@@ -103,8 +109,19 @@ sync()
 body.attr('onkeydown',"keydown(event)")
 
 function keydown(event) {
-	if (event.ctrlKey && event.key == 'Enter') gopad(); }
+	if (event.ctrlKey && event.key == 'Enter') gopad();
+//	console.log(event)
+	if (event.key == 'Enter' )	  autoresize()
+	if (event.key == 'Backspace') autoresize()
+}
 
+function autoresize() {
+		var p = document.getElementById('pad')
+		var lines = p.value.split(/\r\n|\r|\n/).length
+		pad.attr('rows',lines+1)
+}
+autoresize()
+	
 function gopad() {
 	var pad       = document.getElementById("pad")
 	var start     = pad.selectionStart
