@@ -91,7 +91,6 @@ S = new Stack('DATA')
 class Dict extends Container {
 	constructor(V) { super('dict',V) }
 	slot(F)		   {
-		console.log(F)
 		if (F instanceof Frame)		super.slot(F)
 		if (F instanceof Function)	super.slot(new VM(F))
 	}
@@ -99,13 +98,14 @@ class Dict extends Container {
 	
 W = new Dict('FORTH')
 
+W.stor('W',W)
+W.stor('S',S)
+
 class Active extends Frame {}
 
 class VM extends Active {
 	constructor(F) { super('vm',F.name) ; this.fn = F }
 }
-
-W.slot( function NOP(){} )
 
 words = body.select('#words')
 stack = body.select('#stack')
@@ -151,10 +151,43 @@ function gopad() {
 
 <script id=std_vocabulary>
 
-W.stor('W',W)
-W.stor('S',S)
+W.slot( function NOP(){} )
 
+class IO extends Frame { constructor(T,V) { super(T,V) } }
+
+class Dir  extends IO { constructor(V) { super('dir' ,V) } }
+class File extends IO { constructor(V) { super('file',V) } }
+
+</script>
+
+<script id=meta>
+
+class Meta extends Frame { constructor(V) { super('meta',V) } }
+
+(function(){
+
+	let meta = new Meta('META') ; W.slot( meta )
+
+	let clazz = new Meta('class')     ; meta.slot  ( clazz )
+	let frame = new Meta('Frame')     ; clazz.slot ( frame )
+	let prim  = new Meta('Primitive') ; frame.slot ( prim  )
+	let cont  = new Meta('Container') ; frame.slot ( cont  )
+	
+	let io    = new Meta('IO')        ; frame.slot ( io    )
+	let dir   = new Meta('Dir')       ; io.slot    ( dir   )
+	let file  = new Meta('File')      ; io.slot    ( file  )
+	
+	let met   = new Meta('Meta')      ; frame.slot ( met   )
+	
+	let func = new Meta('function') ; meta.stor('function',func)
+	
+	meta.stor('dir',new Dir('jF') )
+
+}())
+
+</script>
+
+<script id=generated>
 sync()
-
 </script>
 
